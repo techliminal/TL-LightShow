@@ -8,7 +8,13 @@
     * LED1 is attached from digital pin 3 (D4) to the 47 ohm resistot then to GND
     * LED2 is attached from digital pin 6 (D1) to the 47 ohm resistor then to GND
     * LED3 is attached from digital pin 5 (D0) to the 47 ohm resistor then to GND
+    * 
     * The button is attached from digital pin 7 (D2) to GND
+ 
+   Forked by Anca Mosoiu 08 Aug 2012
+   
+      
+   
  
     Created 12 May 2012
     By Jeremie Boulianne for Solarbotics Ltd.
@@ -38,7 +44,7 @@
 
 int wakePin = 0;                           //Interrupt 0 which is the button on DIGITAL PIN 2!
 int mode = 1;                              //Mode value for switch 
-volatile int btnPress = 0;                 //Button Press which must be called as a volatile variable because it is used in an Interrupt Service Routine
+volatile int inputVal = 0;                 //Button Press which must be called as a volatile variable because it is used in an Interrupt Service Routine
 int j;                                     //Counter value
 int ledPin;                                //LED value
 long randNumber;                           //Random number value
@@ -49,9 +55,9 @@ void setup() {
   pinMode(1, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(0, OUTPUT);                      //Create (D0) LED3 as an output 
   pinMode(2, INPUT);                       //Create our button pin as an input on D2
-  digitalWrite(2, HIGH);                   //Enable pullup resistor for button so it isn't floating
+  digitalWrite(2, HIGH);                   //Enable pullup resistor for IR (do we need to?) so it isn't floating
   randomSeed(analogRead(3));               //Grab whatever flaoting value on (A3) to give us our random start
-  attachInterrupt(wakePin, wakeUp, LOW);   //Attach the interrupt to the button on D2 and execute the ISR on a LOW signal
+  attachInterrupt(wakePin, wakeUp, LOW);   //Attach the interrupt to the IR Sensor on D2 and execute the ISR on a LOW signal
 }
 
 void loop(){
@@ -160,14 +166,14 @@ void loop(){
   }
  
   delay(500);                              //Debounce the button press
-  btnPress = 0;                            //Reset the button state
+  inputVal = 0;                            //Reset the button state
 }
 
 /*************************WAKE UP SUBROUTINE***************************************/
 
 void wakeUp(){                             //ISR -> Interrupt Service Routine, called when button is pressed
 
-  btnPress = 1;                            //Change the state of the Button Press in order to exit whatever loop is running
+  inputVal = 1;                            //Change the state of the Button Press in order to exit whatever loop is running
 }
 
 /*************************SLEEP NOW SUBROUTINE***************************************/
@@ -197,7 +203,7 @@ void BlinkAll(unsigned int v){             //Blinks all the LEDs at a rate speci
     
   while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
 
-    if (btnPress > 0)  break;              //Check for Button Press  
+    if (inputVal > 0)  break;              //Check for Button Press  
   
     digitalWrite(0, HIGH);
     digitalWrite(1, HIGH);
@@ -205,7 +211,7 @@ void BlinkAll(unsigned int v){             //Blinks all the LEDs at a rate speci
     
     for (int m = v; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press 
+        if (inputVal > 0)  break;          //Check for IR input 
           
       delay(2); 
     }
@@ -216,7 +222,7 @@ void BlinkAll(unsigned int v){             //Blinks all the LEDs at a rate speci
     
     for (int m = v; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
       
       delay(2); 
     }
@@ -229,7 +235,7 @@ void Metronome(unsigned int w){           //LEDs bounce back and forth emulating
      
   while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
      
-    if (btnPress > 0)  break;              //Check for Button Press
+    if (inputVal > 0)  break;              //Check for Button Press
      
     digitalWrite(1, LOW);
     digitalWrite(4, LOW);
@@ -237,7 +243,7 @@ void Metronome(unsigned int w){           //LEDs bounce back and forth emulating
     
     for (int m = w; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(2); 
     } 
@@ -247,7 +253,7 @@ void Metronome(unsigned int w){           //LEDs bounce back and forth emulating
     
     for (int m = w; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     }
@@ -257,7 +263,7 @@ void Metronome(unsigned int w){           //LEDs bounce back and forth emulating
      
     for (int m = w; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(2); 
     } 
@@ -267,7 +273,7 @@ void Metronome(unsigned int w){           //LEDs bounce back and forth emulating
     
     for (int m = w; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     }
@@ -282,7 +288,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
     
    while(1) {                              //Continue to inifitely run this pattern until the button interrupts the loop
      
-    if (btnPress > 0)  break;              //Check for Button Press
+    if (inputVal > 0)  break;              //Check for Button Press
      
     digitalWrite(1, LOW);
     digitalWrite(4, LOW);
@@ -290,7 +296,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
     
     for (int m = x; m > 0; m--) {
           
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     } 
@@ -299,7 +305,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
     
     for (int m = x; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     } 
@@ -308,7 +314,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
    
     for (int m = x; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     }
@@ -317,7 +323,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
     
     for (int m = x; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
        
       delay(1); 
     }
@@ -326,7 +332,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
     
     for (int m = x; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1); 
     }
@@ -335,7 +341,7 @@ void Disco(unsigned int x){                //LEDs chase each other in a triangul
       
     for (int m = x; m > 0; m--) {
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
     delay(1); 
     } 
@@ -348,7 +354,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
    
   while(1){                                //Continue to inifitely run this pattern until the button interrupts the loop
   
-      if (btnPress > 0)  break;            //Check for Button Press
+      if (inputVal > 0)  break;            //Check for Button Press
    
     digitalWrite(0, LOW); 
     digitalWrite(1, LOW);
@@ -358,7 +364,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
     
     while ( j < y){                        //Keep LEDs off for a certain delay
       
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(1);
       j++;
@@ -368,11 +374,11 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
 
     while (j < y) {                        //Pulse up LED1 & LED3
   
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
    
         for (int n = 1; n + j > 0; n--){ 
          
-            if (btnPress > 0)  break;      //Check for Button Press
+            if (inputVal > 0)  break;      //Check for Button Press
            
           digitalWrite(0, HIGH);
           digitalWrite(4, HIGH);           //LED1 & LED3 on
@@ -381,7 +387,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
      
         for (int m = 0; m + j < y; m++){
        
-            if (btnPress > 0)  break;      //Check for Button Press
+            if (inputVal > 0)  break;      //Check for Button Press
             
           digitalWrite(0, LOW); 
           digitalWrite(4, LOW);            //LED1 & LED3 off
@@ -398,7 +404,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
  
     while ( j < y){                        //Keep LEDs on for a certain delay
         
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
         
       delay(11);
       j++;
@@ -408,11 +414,11 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
 
     while (j < y) {                        //Fade down LED1 & LED3
    
-        if (btnPress > 0)  break;          //Check for Button Press
+        if (inputVal > 0)  break;          //Check for Button Press
 
         for (int n = 1; n + j > 0; n--){
           
-            if (btnPress > 0)  break;      //Check for Button Press
+            if (inputVal > 0)  break;      //Check for Button Press
             
           digitalWrite(0, LOW); 
           digitalWrite(4, LOW);            //LED1 & LED3 off
@@ -421,7 +427,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
     
         for (int m = 0; m + j < y; m++){
           
-            if (btnPress > 0)  break;      //Check for Button Press
+            if (inputVal > 0)  break;      //Check for Button Press
           
           digitalWrite(0, HIGH);
           digitalWrite(4, HIGH);           //LED1 & LED3 on
@@ -439,7 +445,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
    
   while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
      
-      if (btnPress > 0)  break;            //Check for Button Press
+      if (inputVal > 0)  break;            //Check for Button Press
     
     digitalWrite(0, LOW); 
     digitalWrite(1, LOW);
@@ -467,7 +473,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
    
       while ( j < z){                      //Keep LEDs off for a certain delay
     
-          if (btnPress > 0)  break;        //Check for Button Press
+          if (inputVal > 0)  break;        //Check for Button Press
         
         delay(5);
         j++;
@@ -477,11 +483,11 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
 
       while (j < 100) {                    //Pulse LED up
       
-          if (btnPress > 0)  break;        //Check for Button Press
+          if (inputVal > 0)  break;        //Check for Button Press
       
           for (int n = 1; n + j > 0; n--){
             
-              if (btnPress > 0)  break;    //Check for Button Press
+              if (inputVal > 0)  break;    //Check for Button Press
               
             digitalWrite(ledPin, HIGH);    //LED on
             delayMicroseconds(100); 
@@ -489,7 +495,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     
           for (int m = 0; m + j < z; m++){
             
-              if (btnPress > 0)  break;    //Check for Button Press
+              if (inputVal > 0)  break;    //Check for Button Press
               
             digitalWrite(ledPin, LOW);     //LED off
             delayMicroseconds(100); 
@@ -503,7 +509,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
       
       while ( j < z){                       //Keep LEDs on for a certain delay
         
-          if (btnPress > 0)  break;         //Check for Button Press
+          if (inputVal > 0)  break;         //Check for Button Press
           
         delay(11);
         j++;
@@ -513,11 +519,11 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
  
       while (j < 100) {                      //Fade LED down
      
-          if (btnPress > 0)  break;          //Check for Button Press 
+          if (inputVal > 0)  break;          //Check for Button Press 
      
           for (int n = 1; n + j > 0; n--){
             
-              if (btnPress > 0)  break;      //Check for Button Press
+              if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, LOW);       //LED off
             delayMicroseconds(100); 
@@ -525,7 +531,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     
           for (int m = 0; m + j < z; m++){
              
-              if (btnPress > 0)  break;      //Check for Button Press
+              if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, HIGH);      //LED on
             delayMicroseconds(100); 
