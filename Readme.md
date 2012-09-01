@@ -16,5 +16,6 @@
 # Tutorials & Datasheets
 
 * http://learn.adafruit.com/ir-sensor/ir-remote-signals (learn how to send them)
+* [IR Commander](https://github.com/adafruit/IR-Commander) - read and sned signals
 * [ATiny85 Datasheet](http://www.atmel.com/Images/doc2586.pdf)
 * [Firefly Programming Instructions](http://content.solarbotics.com/products/documentation/firefly_may29-2012.pdf)
