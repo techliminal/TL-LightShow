@@ -10,10 +10,12 @@
     * LED3 is attached from digital pin 5 (D0) to the 47 ohm resistor then to GND
     * 
     * The button is attached from digital pin 7 (D2) to GND
+    
+    * IR recvr attached to D3
  
    Forked by Anca Mosoiu 08 Aug 2012
    
-      
+   Forked again by Michael Schrecker 19 Sep 2012
    
  
     Created 12 May 2012
@@ -40,14 +42,45 @@
 #endif
 #ifndef sbi
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif                                             
+#endif                                       
 
-int wakePin = 0;                           //Interrupt 0 which is the button on DIGITAL PIN 2!
+//IR Pin definition, needed for raw read
+#define IRpin_PIN      PIND
+#define IRpin          3
+
+/*
+
+// the maximum pulse we'll listen for - 65 milliseconds is a long time
+#define MAXPULSE 65000
+#define NUMPULSES 50
+
+// what our timing resolution should be, larger is better
+// as its more 'precise' - but too large and you wont get
+// accurate timing
+#define RESOLUTION 20 
+
+// What percent we will allow in variation to match the same code
+#define FUZZINESS 20
+
+// we will store up to 100 pulse pairs (this is -a lot-)
+uint16_t pulses[NUMPULSES][2];  // pair is high and low pulse 
+uint8_t currentpulse = 0; // index for pulses we're storing
+
+#include "ircodes.h"
+
+*/
+
+
+//int wakePin = 0;       wa                    //Interrupt 0 which is the button on DIGITAL PIN 2!
+int wakePin = 1;                           //Interrupt 1 which is the IR sensor on DIGITAL PIN 3!
 int mode = 1;                              //Mode value for switch 
 volatile int inputVal = 0;                 //Button Press which must be called as a volatile variable because it is used in an Interrupt Service Routine
 int j;                                     //Counter value
 int ledPin;                                //LED value
 long randNumber;                           //Random number value
+int del;              //delay value (ms)
+int lop;              //loop value
+int lop2;            //loop value 2
 
 
 void setup() {
@@ -55,9 +88,11 @@ void setup() {
   pinMode(1, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(0, OUTPUT);                      //Create (D0) LED3 as an output 
   pinMode(2, INPUT);                       //Create our button pin as an input on D2
-  digitalWrite(2, HIGH);                   //Enable pullup resistor for IR (do we need to?) so it isn't floating
-  randomSeed(analogRead(3));               //Grab whatever flaoting value on (A3) to give us our random start
-  attachInterrupt(wakePin, wakeUp, LOW);   //Attach the interrupt to the IR Sensor on D2 and execute the ISR on a LOW signal
+  pinMode(3, INPUT);                       //Create D3 as IR input
+//  digitalWrite(2, HIGH);                   //Enable pullup resistor for IR (do we need to?) so it isn't floating
+//  randomSeed(analogRead(3));               //Grab whatever flaoting value on (A3) to give us our random start
+  randomSeed(3);                           //Not so random seed
+  attachInterrupt(wakePin, wakeUp, HIGH);   //Attach the interrupt to the IR Sensor on D3 and execute the ISR on a LOW signal
 }
 
 void loop(){
@@ -70,11 +105,12 @@ void loop(){
       break;                               //Exit switch case
        
     case 1:
-      BlinkAll(256); 
-      mode++;
+//      BlinkAll(750); 
+      FireFly(200);
+      mode=0;
       break;   
        
-    case 2:
+ /*   case 2:
       BlinkAll(150);
       mode++;
       break;
@@ -163,7 +199,8 @@ void loop(){
       FireFly(50);
       mode = 0;                            //Reset mode back to zero to re-start the switch from the top
       break;   
-  }
+*/  
+}
  
   delay(500);                              //Debounce the button press
   inputVal = 0;                            //Reset the button state
@@ -422,7 +459,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
             
           digitalWrite(0, LOW); 
           digitalWrite(4, LOW);            //LED1 & LED3 off
-          delayMicroseconds(100); 
+          delayMicroseconds(1000); 
         }
     
         for (int m = 0; m + j < y; m++){
@@ -431,7 +468,7 @@ void FadingEyes(unsigned int y){           //LEDs fade like the creepy eyes of a
           
           digitalWrite(0, HIGH);
           digitalWrite(4, HIGH);           //LED1 & LED3 on
-          delayMicroseconds(100); 
+          delayMicroseconds(1000); 
         }
      
       j++;
@@ -451,6 +488,10 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     digitalWrite(1, LOW);
     digitalWrite(4, LOW);                  //All LEDs off
     
+    del = 200;
+    lop = 300;
+    lop2 = 100;
+    
     randNumber = random(20);               //Chooses a random number from 0-20
 
       if (randNumber >=0 && randNumber < 7 ){       //If the random number is between 0-6 choose LED3
@@ -467,7 +508,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
    
         ledPin = 4;
       } 
-   
+/*  
     j = 0;
     digitalWrite(ledPin, LOW);             //Turn LED off
    
@@ -478,10 +519,10 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
         delay(5);
         j++;
       }
-    
+*/   
     j = 0;
 
-      while (j < 100) {                    //Pulse LED up
+      while (j < lop) {                    //Pulse LED up
       
           if (inputVal > 0)  break;        //Check for Button Press
       
@@ -490,20 +531,20 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
               if (inputVal > 0)  break;    //Check for Button Press
               
             digitalWrite(ledPin, HIGH);    //LED on
-            delayMicroseconds(100); 
+            delayMicroseconds(del); 
           }
     
-          for (int m = 0; m + j < z; m++){
+          for (int m = 0; m + j < lop2; m++){
             
               if (inputVal > 0)  break;    //Check for Button Press
               
             digitalWrite(ledPin, LOW);     //LED off
-            delayMicroseconds(100); 
+            delayMicroseconds(del); 
           }
       
         j++;
       }
- 
+/* 
     j = 0;
     digitalWrite(ledPin, HIGH);             //Turn LED on
       
@@ -514,31 +555,36 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
         delay(11);
         j++;
       }
-    
+*/    
     j = 0;
  
-      while (j < 100) {                      //Fade LED down
+      while (j < lop) {                      //Fade LED down
      
           if (inputVal > 0)  break;          //Check for Button Press 
      
-          for (int n = 1; n + j > 0; n--){
+          for (int n = 1; n + j > 0; n -= 1){
             
               if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, LOW);       //LED off
-            delayMicroseconds(100); 
+            delayMicroseconds(del); 
           }
     
-          for (int m = 0; m + j < z; m++){
+          for (int m = 0; m + j < lop2; m += 1){
              
               if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, HIGH);      //LED on
-            delayMicroseconds(100); 
+            delayMicroseconds(del); 
           }
       
         j++;
       }
+/*      
+      lop2++;
+      lop++;
+      del++;
+*/
   }
 }
 
