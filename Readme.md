@@ -11,7 +11,7 @@
 # Software
 
 * https://github.com/adafruit/Raw-IR-decoder-for-Arduino
-* 
+* Programming ATTiny with Arduino 1.0.1 (you have to add a library): http://hlt.media.mit.edu/?p=1695
 
 # Tutorials & Datasheets
 
