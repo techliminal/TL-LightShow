@@ -15,9 +15,8 @@
     * IR recvr attached to D3
  
    Forked by Anca Mosoiu 08 Aug 2012
-   
    Forked again by Michael Schrecker 19 Sep 2012
-   
+   Forked once more by Anca Mosoiu 08 Aug 2013 (one year LATER!)
  
     Created 12 May 2012
     By Jeremie Boulianne for Solarbotics Ltd.
@@ -67,11 +66,6 @@
 //uint16_t pulses[100][2];  // pair is high and low pulse 
 uint8_t currentpulse = 0; // index for pulses we're storing
 
-
-
-
-
-
 //int wakePin = 0;       wa                    //Interrupt 0 which is the button on DIGITAL PIN 2!
 int wakePin = 1;                           //Interrupt 1 which is the IR sensor on DIGITAL PIN 3!
 int mode = 1;                              //Mode value for switch 
@@ -104,7 +98,9 @@ void setup() {
 }
 
 void loop(){
-  
+
+  mode=2;       // Put it in Mode 2 all the time.
+   
   switch(mode){                            //Switch case statement which check for which mode the program needs to be in
   
     case 0:
