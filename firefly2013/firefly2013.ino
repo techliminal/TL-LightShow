@@ -110,15 +110,15 @@ void loop(){
        
     case 1:
       FireFly(200);
-      mode=2;
+      mode=1;
       delay(2000);
       break;   
        
     case 2:
-      BlinkAll(200);
+      FireFly(2000);
+      mode=2;
       delay(2000);
-      mode=1;
-      break;   
+      break; 
 }
  
   delay(500);                              //Debounce the button press
@@ -262,55 +262,6 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
       
         j++;
       }
-       
-    inputVal =  SimpleIRRead();
- 
   }
-}
-
-/*************************BLINK ALL SUBROUTINE***************************************/
- 
-void BlinkAll(unsigned int v){             //Blinks all the LEDs at a rate specified in the main loop
-    
-  while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
-
-    if (inputVal > 0)  break;              //Check for Button Press  
-  
-    digitalWrite(0, HIGH);
-    digitalWrite(1, HIGH);
-    digitalWrite(4, HIGH);                 //Turn on all the LEDs
-    
-    for (int m = v; m > 0; m--) {
-      
-        if (inputVal > 0)  break;          //Check for IR input 
-          
-      delay(2); 
-    }
-    
-    digitalWrite(0, LOW); 
-    digitalWrite(1, LOW);
-    digitalWrite(4, LOW);                  //Turn off all the LEDs
-    
-    for (int m = v; m > 0; m--) {
-      
-        if (inputVal > 0)  break;          //Check for Button Press
-      
-      delay(2); 
-    }
-    inputVal = SimpleIRRead();
-  }  
-}
-
-/*****  IR Reader *****/
-
-int SimpleIRRead(void){
-  
-  if (!digitalRead(IRpin)) { 
-    return 0;
-  }
-  else {  // This is high-sensor, and is normally on
-    return 1;
-  }
-  
 }
 
