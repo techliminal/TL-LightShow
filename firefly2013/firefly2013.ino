@@ -99,7 +99,7 @@ void setup() {
 
 void loop(){
 
-  mode=2;       // Put it in Mode 2 all the time.
+  //mode=2;       // Put it in Mode 2 all the time.
    
   switch(mode){                            //Switch case statement which check for which mode the program needs to be in
   
@@ -110,15 +110,17 @@ void loop(){
        
     case 1:
       FireFly(200);
-      mode=1;
+      mode++;
       delay(2000);
       break;   
        
     case 2:
       FireFly(2000);
-      mode=2;
+      mode++;
       delay(2000);
-      break; 
+      break;
+    case 3: // reset to 0
+      mode=0; 
 }
  
   delay(500);                              //Debounce the button press
