@@ -73,6 +73,7 @@ volatile int inputVal = 0;                 //Button Press which must be called a
 int j;                                     //Counter value
 int ledPin;                                //LED value
 long randNumber;                           //Random number value
+long randNumber2;                           //Random number value
 int del;              //delay value (ms)
 int lop;              //loop value
 int lop2;            //loop value 2
@@ -160,7 +161,7 @@ void sleepNow(){                            //A subroutine that puts the Arduino
   
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
-  del = 25;
+  // del = 150;
   lop = 100;
   lop2 = 100;
   control = 0;
@@ -193,6 +194,13 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
    
         ledPin = LED3;
       } 
+      
+    randNumber2 = random(20);               //Chooses a random number from 0-20
+
+    del = 20 + (randNumber2 * 20);
+      
+      
+      
     j = 0;
     digitalWrite(ledPin, LOW);             //Turn LED off
    
@@ -200,7 +208,7 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     
           if (inputVal > 0)  break;        //Check for Button Press
         
-        delay(5);
+        delay(10);
         j++;
     }
  
