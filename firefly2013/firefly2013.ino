@@ -74,6 +74,7 @@ int j;                                     //Counter value
 int ledPin;                                //LED value
 long randNumber;                           //Random number value
 long randNumber2;                           //Random number value
+long randNumber3;                           //Random number value
 int del;              //delay value (ms)
 int lop;              //loop value
 int lop2;            //loop value 2
@@ -106,18 +107,18 @@ void loop(){
   
     case 0:
       sleepNow();                          //Call function and wait for a push button interrupt
-      mode++;                              //Increase the mode value to switch to the next case
+      //mode++;                              //Increase the mode value to switch to the next case
       break;                               //Exit switch case
        
     case 1:
       FireFly(200);
-      mode++;
+      //mode++;
       delay(2000);
       break;   
        
     case 2:
-      FireFly(2000);
-      mode++;
+      FireFly(10);
+      //mode++;
       delay(2000);
       break;
     case 3: // reset to 0
@@ -133,6 +134,7 @@ void loop(){
 void wakeUp(){                             //ISR -> Interrupt Service Routine, called when button is pressed
 
   inputVal = 1;                            //Change the state of the Button Press in order to exit whatever loop is running
+  mode++;
 }
 
 /*************************SLEEP NOW SUBROUTINE***************************************/
@@ -161,7 +163,7 @@ void sleepNow(){                            //A subroutine that puts the Arduino
   
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
-  // del = 150;
+  del = 150;
   lop = 100;
   lop2 = 100;
   control = 0;
@@ -197,9 +199,22 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
       
     randNumber2 = random(20);               //Chooses a random number from 0-20
 
-    del = 20 + (randNumber2 * 20);
-      
-      
+    del = 20 + (randNumber2 * 2);
+    
+    randNumber3 = random (400);
+  
+    randNumber3 = randNumber3 - 200;
+  
+    z = z + randNumber3;  
+     
+    if (z < 25) {
+        z = 25;
+    }
+     
+     
+    if (z > 1000) {
+        z = 1000;
+    }
       
     j = 0;
     digitalWrite(ledPin, LOW);             //Turn LED off
