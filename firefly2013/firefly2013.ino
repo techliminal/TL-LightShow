@@ -85,6 +85,8 @@ int LED1 = 4;
 int LED2 = 1;
 int LED3 = 0;
 
+int led1, led2, led3;
+
 void setup() {
   //Serial.begin(9600);
   //Serial.println("Ready to decode IR!");
@@ -111,7 +113,7 @@ void loop(){
       break;                               //Exit switch case
        
     case 1:
-      FireFly(200);
+      FireFly(2000);
       //mode++;
       delay(2000);
       break;   
@@ -164,7 +166,7 @@ void sleepNow(){                            //A subroutine that puts the Arduino
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
   del = 150;
-  lop = 100;
+  lop = 10;
   lop2 = 100;
   control = 0;
    
@@ -178,84 +180,70 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     digitalWrite(LED2, LOW);
     digitalWrite(LED3, LOW);                  //All LEDs off
     
-   
+   led1 =  led2 = led3 = LOW;
+    // pick a duration for the cycle, and then loop.  Duration should be a number of seconds, not less
     
-    randNumber = random(20);               //Chooses a random number from 0-20
-
-      if (randNumber >=0 && randNumber < 7 ){       //If the random number is between 0-6 choose LED3
     
-        ledPin = LED1;
-      }
-
-      else if (randNumber >=7 && randNumber < 14 ){ //Or else if the random number is between 7-13 choose LED2
+    // decide whether a given light will be on or off.  Each light will have a modifier.
    
-        ledPin = LED2;
-      }
-      
-      else {                                        //Or if the random number is between 14-20 choose LED1
-   
-        ledPin = LED3;
-      } 
-      
-    randNumber2 = random(20);               //Chooses a random number from 0-20
-
-    del = 20 + (randNumber2 * 2);
-    
-    randNumber3 = random (400);
+   int max1 = random(z);
+   int max2 = random(z);
+   int max3 = random(z);
   
-    randNumber3 = randNumber3 - 200;
+   for (int i = 0; i<z+lop; i++){
+       if (i > max1){
+          if (led1 == LOW){
+            for (int m = 0; m < lop; m++){
+              pulse_up(m, LED1);
+            }
+            led1 = HIGH;
+          } else {
+            for (int n=0; n < lop; i++){
+              pulse_down(n,LED1);
+            }
+            led1=LOW;
+             
+          }
+       }
+     }
+  }
+}
+
+void pulse_up(int lop, byte led){
+     
+  j = 0;
+
+  digitalWrite(led, LOW);
   
-    z = z + randNumber3;  
-     
-    if (z < 25) {
-        z = 25;
-    }
-     
-     
-    if (z > 1000) {
-        z = 1000;
-    }
-      
-    j = 0;
-    digitalWrite(ledPin, LOW);             //Turn LED off
-   
-    while ( j < z ){                      //Keep LEDs off for a certain delay
-    
-          if (inputVal > 0)  break;        //Check for Button Press
+  while (j < lop) {                    //Pulse LED up
+  
+      if (inputVal > 0)  break;        //Check for Button Press
+  
+      for (int n = 1; n + j > 0; n--){
         
-        delay(10);
-        j++;
-    }
- 
-    j = 0;
-
-      while (j < lop) {                    //Pulse LED up
-      
-          if (inputVal > 0)  break;        //Check for Button Press
-      
-          for (int n = 1; n + j > 0; n--){
-            
-              if (inputVal > 0)  break;    //Check for Button Press
-              
-            digitalWrite(ledPin, HIGH);    //LED on
-            delayMicroseconds(del); 
-          }
-    
-          for (int m = 0; m + j < lop2; m++){
-            
-              if (inputVal > 0)  break;    //Check for Button Press
-              
-            digitalWrite(ledPin, LOW);     //LED off
-            delayMicroseconds(del); 
-          }
-      
-        j++;
+          if (inputVal > 0)  break;    //Check for Button Press
+          
+        digitalWrite(led, HIGH);    //LED on
+        delayMicroseconds(del); 
       }
- 
-    j = 0;
-    digitalWrite(ledPin, HIGH);             //Turn LED on
+
+      for (int m = 0; m + j < lop2; m++){
+        
+          if (inputVal > 0)  break;    //Check for Button Press
+          
+        digitalWrite(ledPin, LOW);     //LED off
+        delayMicroseconds(del); 
+      }
+  
+    j++;
+  }
+}
+
+void pulse_down(int lop, byte led){
+      j = 0;
+    digitalWrite(led, HIGH);             //Turn LED on
       
-      while ( j < z){                       //Keep LEDs on for a certain delay
+      while ( j < lop){                       //Keep LEDs on for a certain delay
         
           if (inputVal > 0)  break;         //Check for Button Press
           
@@ -274,19 +262,10 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
               if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, LOW);       //LED off
-            delayMicroseconds(del); 
+ 
           }
     
-          for (int m = 0; m + j < lop2; m += 1){
-             
-              if (inputVal > 0)  break;      //Check for Button Press
-              
-            digitalWrite(ledPin, HIGH);      //LED on
-            delayMicroseconds(del); 
-          }
       
         j++;
       }
-  }
-}
-
+} 
