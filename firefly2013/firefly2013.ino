@@ -45,41 +45,14 @@
 #endif                                       
 
 
-// We need to use the 'raw' pin reading methods
-// because timing is very important here and the digitalRead()
-// procedure is slower!
-//uint8_t IRpin = 2;
-// Digital pin #2 is the same as Pin D2 see
-// http://arduino.cc/en/Hacking/PinMapping168 for the 'raw' pin mapping
-#define IRpin_PIN      3
-#define IRpin          2
-
-// the maximum pulse we'll listen for - 65 milliseconds is a long time
-#define MAXPULSE 65000
-
-// what our timing resolution should be, larger is better
-// as its more 'precise' - but too large and you wont get
-// accurate timing
-#define RESOLUTION 250
-
-// we will store up to 100 pulse pairs (this is -a lot-)
-//uint16_t pulses[100][2];  // pair is high and low pulse 
-uint8_t currentpulse = 0; // index for pulses we're storing
-
-//int wakePin = 0;       wa                    //Interrupt 0 which is the button on DIGITAL PIN 2!
-int wakePin = 1;                           //Interrupt 1 which is the IR sensor on DIGITAL PIN 3!
+int wakePin = 0;                           //Interrupt 0 which is the button on DIGITAL PIN 2!
+//int wakePin = 1;                           //Interrupt 1 which is the IR sensor on DIGITAL PIN 3!
 int mode = 1;                              //Mode value for switch 
 volatile int inputVal = 0;                 //Button Press which must be called as a volatile variable because it is used in an Interrupt Service Routine
 int j;                                     //Counter value
-int ledPin;                                //LED value
-long randNumber;                           //Random number value
-long randNumber2;                           //Random number value
-long randNumber3;                           //Random number value
+
 int del;              //delay value (ms)
 int lop;              //loop value
-int lop2;            //loop value 2
-int IRRead;          //Raw IR Reading
-int control = 0;        //Control state
 
 int LED1 = 4;
 int LED2 = 1;
@@ -93,17 +66,13 @@ void setup() {
   pinMode(LED1, OUTPUT);                      //Create (D4) LED1 as an output
   pinMode(LED2, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
-  pinMode(13, INPUT);                       //Create our button pin as an input on D2
-//  pinMode(2, INPUT);                       //Create D3 as IR input
-  digitalWrite(13, HIGH);                   //Enable pullup resistor for IR (do we need to?) so it isn't floating
-//  randomSeed(analogRead(3));               //Grab whatever flaoting value on (A3) to give us our random start
   randomSeed(3);                           //Not so random seed
   //attachInterrupt(wakePin, wakeUp, HIGH);   //Attach the interrupt to the IR Sensor on D3 and execute the ISR on a LOW signal
 }
 
 void loop(){
 
-  //mode=2;       // Put it in Mode 2 all the time.
+  mode=1;       // Force a mode
    
   switch(mode){                            //Switch case statement which check for which mode the program needs to be in
   
@@ -113,9 +82,8 @@ void loop(){
       break;                               //Exit switch case
        
     case 1:
-      FireFly(2000);
+      FireFly(20000);
       //mode++;
-      delay(2000);
       break;   
        
     case 2:
@@ -166,9 +134,7 @@ void sleepNow(){                            //A subroutine that puts the Arduino
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
   del = 150;
-  lop = 10;
-  lop2 = 100;
-  control = 0;
+  lop = 100;
    
   while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
      
@@ -186,25 +152,46 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     
     // decide whether a given light will be on or off.  Each light will have a modifier.
    
-   int max1 = random(z);
-   int max2 = random(z);
-   int max3 = random(z);
+   //int max1 = random(z);
+   int max1 = random(z-1000);
+   int max2 = random(z-1000);
+   int max3 = random(z-1000);
   
    for (int i = 0; i<z+lop; i++){
-       if (i > max1){
-          if (led1 == LOW){
-            for (int m = 0; m < lop; m++){
-              pulse_up(m, LED1);
-            }
-            led1 = HIGH;
-          } else {
-            for (int n=0; n < lop; i++){
-              pulse_down(n,LED1);
-            }
-            led1=LOW;
-             
-          }
+       if (i == max1){
+           led1 = HIGH;
+           pulse_up(lop, LED1);
        }
+       if (i == max2){
+           led2=HIGH;
+           pulse_up(lop, LED2);
+       }
+       if(i == max3){
+         led3=HIGH;
+         pulse_up(lop, LED3);    
+       }
+      digitalWrite(LED1, led1); 
+      digitalWrite(LED2, led2);
+      digitalWrite(LED3, led3);                  //All LEDs off
+      delay(1);
+     }
+     for (int i = 0; i<z+lop; i++){
+       if (i == max1){
+           led1 = LOW;
+           pulse_down(lop, LED1);
+       }
+       if (i == max2){
+           led2=LOW;
+           pulse_down(lop, LED2);
+       }
+       if(i == max3){
+         led3=LOW;
+         pulse_down(lop, LED3);    
+       }
+      digitalWrite(LED1, led1); 
+      digitalWrite(LED2, led2);
+      digitalWrite(LED3, led3);                  //All LEDs off
+      delay(1);
      }
   }
 }
@@ -224,24 +211,24 @@ void pulse_up(int lop, byte led){
           if (inputVal > 0)  break;    //Check for Button Press
           
         digitalWrite(led, HIGH);    //LED on
-        delayMicroseconds(del); 
+        delayMicroseconds(10); 
       }
 
-      for (int m = 0; m + j < lop2; m++){
+      for (int m = 0; m + j < lop; m++){
         
           if (inputVal > 0)  break;    //Check for Button Press
           
-        digitalWrite(ledPin, LOW);     //LED off
-        delayMicroseconds(del); 
+        digitalWrite(led, LOW);     //LED off
+        delayMicroseconds(10); 
       }
   
     j++;
   }
 }
 
-void pulse_down(int lop, byte led){
+void pulse_down(int lop, byte ledPin){
       j = 0;
-    digitalWrite(led, HIGH);             //Turn LED on
+    digitalWrite(ledPin, HIGH);             //Turn LED on
       
       while ( j < lop){                       //Keep LEDs on for a certain delay
         
@@ -253,6 +240,8 @@ void pulse_down(int lop, byte led){
    
     j = 0;
  
+      j = 0;
+ 
       while (j < lop) {                      //Fade LED down
      
           if (inputVal > 0)  break;          //Check for Button Press 
@@ -262,10 +251,18 @@ void pulse_down(int lop, byte led){
               if (inputVal > 0)  break;      //Check for Button Press
               
             digitalWrite(ledPin, LOW);       //LED off
- 
+            delayMicroseconds(10); 
           }
     
+          for (int m = 0; m + j < lop; m += 1){
+             
+              if (inputVal > 0)  break;      //Check for Button Press
+              
+            digitalWrite(ledPin, HIGH);      //LED on
+            delayMicroseconds(10); 
+          }
       
         j++;
       }
 } 
+
