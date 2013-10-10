@@ -1,4 +1,5 @@
-// a git comment
+
+    // a git comment
 /*
  Solarbotics Firefly Code
     
@@ -66,7 +67,7 @@ void setup() {
   pinMode(LED1, OUTPUT);                      //Create (D4) LED1 as an output
   pinMode(LED2, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
-  randomSeed(3);                           //Not so random seed
+  randomSeed(analogRead(0));                           //Not so random seed
   //attachInterrupt(wakePin, wakeUp, HIGH);   //Attach the interrupt to the IR Sensor on D3 and execute the ISR on a LOW signal
 }
 
@@ -82,7 +83,7 @@ void loop(){
       break;                               //Exit switch case
        
     case 1:
-      FireFly(20000);
+      FireFly(6000);
       //mode++;
       break;   
        
@@ -152,30 +153,30 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
     
     // decide whether a given light will be on or off.  Each light will have a modifier.
    
-   //int max1 = random(z);
-   int max1 = random(z-1000);
-   int max2 = random(z-1000);
-   int max3 = random(z-1000);
-  
+   int half = z/2;
+   randomSeed(analogRead(2));
+   //int min1 = random(z);
+   int min1 = random(half);
+   int min2 = random(half);
+   int min3 = random(half);
+ 
+   int max1 = z-min1;
+   int max2 = z-min2;
+   int max3 = z-min3;
+   
    for (int i = 0; i<z+lop; i++){
-       if (i == max1){
+       if (i == min1){
            led1 = HIGH;
            pulse_up(lop, LED1);
        }
-       if (i == max2){
+       if (i == min2){
            led2=HIGH;
            pulse_up(lop, LED2);
        }
-       if(i == max3){
+       if(i == min3){
          led3=HIGH;
          pulse_up(lop, LED3);    
        }
-      digitalWrite(LED1, led1); 
-      digitalWrite(LED2, led2);
-      digitalWrite(LED3, led3);                  //All LEDs off
-      delay(1);
-     }
-     for (int i = 0; i<z+lop; i++){
        if (i == max1){
            led1 = LOW;
            pulse_down(lop, LED1);
@@ -190,9 +191,10 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
        }
       digitalWrite(LED1, led1); 
       digitalWrite(LED2, led2);
-      digitalWrite(LED3, led3);                  //All LEDs off
+      digitalWrite(LED3, led3);                  //All LEDs off or on
       delay(1);
      }
+     delay(1000); 
   }
 }
 
