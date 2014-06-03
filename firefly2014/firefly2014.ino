@@ -53,7 +53,6 @@
 
 
 int wakePin = 0;                           //Interrupt 0 which is the button on DIGITAL PIN 2!
-//int wakePin = 1;                           //Interrupt 1 which is the IR sensor on DIGITAL PIN 3!
 int mode = 1;                              //Mode value for switch 
 volatile int inputVal = 0;                 //Button Press which must be called as a volatile variable because it is used in an Interrupt Service Routine
 int j;                                     //Counter value
@@ -68,34 +67,28 @@ int LED3 = 0;
 int led1, led2, led3;
 
 void setup() {
-  //Serial.begin(9600);
-  //Serial.println("Ready to decode IR!");
   pinMode(LED1, OUTPUT);                      //Create (D4) LED1 as an output
   pinMode(LED2, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
   randomSeed(analogRead(0));                           //Not so random seed
-  //attachInterrupt(wakePin, wakeUp, HIGH);   //Attach the interrupt to the IR Sensor on D3 and execute the ISR on a LOW signal
 }
 
 void loop(){
 
-  mode=1;       // Force a mode
+//  mode=1;       // Force a mode (do we need this?)
    
   switch(mode){                            //Switch case statement which check for which mode the program needs to be in
   
     case 0:
       sleepNow();                          //Call function and wait for a push button interrupt
-      //mode++;                              //Increase the mode value to switch to the next case
       break;                               //Exit switch case
        
     case 1:
       FireFly(6000);
-      //mode++;
       break;   
        
     case 2:
       FireFly(10);
-      //mode++;
       delay(2000);
       break;
     case 3: // reset to 0
