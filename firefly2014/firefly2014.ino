@@ -41,7 +41,10 @@
       Dale Wheat's Tiny cyclon project: http://www.dalewheat.com/info/
 */
 
+#include <IRremote.h>
 #include <avr/sleep.h>
+
+
 
 //Code needed to modify the Analog to Digital Convertor (ADC) register bits to turn it on and off
 #ifndef cbi
@@ -63,6 +66,11 @@ int lop;              //loop value
 int LED1 = 4;
 int LED2 = 1;
 int LED3 = 0;
+int RECV_PIN = 2;
+
+IRrecv irrecv(RECV_PIN);
+
+decode_results results;
 
 int led1, led2, led3;
 
@@ -70,14 +78,24 @@ void setup() {
   pinMode(LED1, OUTPUT);                      //Create (D4) LED1 as an output
   pinMode(LED2, OUTPUT);                      //Create (D1) LED2 as an output 
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
+
   randomSeed(analogRead(0));                           //Not so random seed
 }
 
 void loop(){
 
-//  mode=1;       // Force a mode (do we need this?)
+  mode = readInput();
    
-  switch(mode){                            //Switch case statement which check for which mode the program needs to be in
+  switch(mode){
+     case 0:
+       allOff();
+       break;
+     case 2:
+       allOn();
+       break;
+  } 
+   
+/*  switch(mode){                            //Switch case statement which check for which mode the program needs to be in
   
     case 0:
       sleepNow();                          //Call function and wait for a push button interrupt
@@ -96,7 +114,8 @@ void loop(){
 }
  
   delay(500);                              //Debounce the button press
-  inputVal = 0;                            //Reset the button state
+  
+  inputVal = 0;                            //Reset the button state  */
 }
 
 /*************************WAKE UP SUBROUTINE***************************************/
@@ -128,6 +147,31 @@ void sleepNow(){                            //A subroutine that puts the Arduino
   sbi(ADCSRA,ADEN);                        //Switch ADC ON
 }
 
+/*************************ReadIR***************************************/
+byte readInput(){
+    if (irrecv.decode(&results)) {
+
+    if (results.value == 0x77E1A09E) {    // this code indicates POWER button was pressed
+      mode = !mode;
+    }
+    irrecv.resume();  
+    }
+    return mode;
+}
+
+/*************************All On***************************************/
+
+void allOn(){
+   digitalWrite(LED1, HIGH);
+   digitalWrite(LED2, HIGH);
+   digitalWrite(LED3, HIGH); 
+}
+
+void allOff(){
+   digitalWrite(LED1, LOW);
+   digitalWrite(LED2, LOW);
+   digitalWrite(LED3, LOW); 
+}
 
 /*************************FIRE FLY SUBROUTINE***************************************/
   
