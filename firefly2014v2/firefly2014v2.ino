@@ -17,6 +17,12 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 // #install <SoftwareSerial.h>       // use if you do not wish to use the lightweight library 
 #include <SendOnlySoftwareSerial.h>  // See http://forum.arduino.cc/index.php?topic=112013.0
  
+ //Input IR Vaules
+// apple + 0xFDF85427
+//apple - 0xFDF84C27
+//FFW 0xFBF8C84F
+
+ 
 // SoftwareSerial Serial(1,0);      // Receive, Transmit (Receive not used)
 SendOnlySoftwareSerial Serial(0);   // Transmit serial on Trinket/Gemma pin GPIO #0/D0
  
