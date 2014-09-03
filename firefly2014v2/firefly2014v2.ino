@@ -35,11 +35,11 @@ SendOnlySoftwareSerial Serial(0);   // Transmit serial on Trinket/Gemma pin GPIO
 
  
 #define MAXPULSE    5000  // the maximum pulse we'll listen for - 5 milliseconds 
-#define NUMPULSES    50  // max IR pulse pairs to sample
+#define NUMPULSES    30  // max IR pulse pairs to sample
 #define RESOLUTION     2  // // time between IR measurements
  
 // we will store up to 100 pulse pairs (this is -a lot-)
-uint16_t pulses[50][2]; // pair is high and low pulse
+uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
  
@@ -51,9 +51,9 @@ void setup(void) {
   
   for(int i=0; i< 3; i++){
       digitalWrite(LED1, HIGH);
-      delay(100);
+      delay(500);
       digitalWrite(LED1, LOW);
-      delay(100);
+      delay(500);
   }
   
 }
@@ -63,7 +63,7 @@ void loop(void) {
   uint16_t numpulse=listenForIR(); // Wait for an IR Code
 
   // Process the pulses to get a single number representing code
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < NUMPULSES; i++) {
     irCode=irCode<<1;
     if((pulses[i][0] * RESOLUTION)>0&&(pulses[i][0] * RESOLUTION)<500) {
       irCode|=0; 
@@ -72,17 +72,35 @@ void loop(void) {
     }
   }
   
-  printcode();  // Print IR code to softwareserial
+  dostuff();  // Print IR code to softwareserial
   
+
 }
- 
-void printcode(void) {
+void dostuff(void) {
   uint16_t half;
+  uint16_t less;
+  
   half=irCode>>16;  // Get first 16 bits of code
-  Serial.print("0x");
-  Serial.print(half, HEX);  // Print upper 16 bits in hex
-  Serial.println(irCode & 0xFFFF, HEX); // print lower 16 bits in hex
+  less = irCode & 0xFFFF;  // the second 16 bits
+  
+  if (less > 0xE000) return;
+  
+  Serial.print("--");
+  //Serial.print(half, HEX);  // Print upper 16 bits in hex
+  //Serial.println(irCode & 0xFFFF, HEX); // print lower 16 bits in hex
+  
+  Serial.println(less, HEX); // print lower 16 bits in hex
+  
+  if (less > 0 && less < 0x1350){
+    all_on();
+  } else if (less > 0x1350 && less < 0x1520){
+      Serial.println("11111");
+  } else if (less > 0x1520 && less < 0x1620){
+     all_off(); 
+  }
 }
+
+
 
 uint16_t listenForIR() {  // IR receive code
   currentpulse = 0;
@@ -109,4 +127,21 @@ uint16_t listenForIR() {  // IR receive code
    pulses[currentpulse][1] = lowpulse;
    currentpulse++;
   }
+}
+
+void blink4(){
+    for(int i=0; i< 3; i++){
+      digitalWrite(LED1, HIGH);
+      delay(500);
+      digitalWrite(LED1, LOW);
+      delay(500);
+  }
+}
+
+void all_on(){
+    digitalWrite(LED1, HIGH);
+}
+
+void all_off(){
+   digitalWrite(LED1, LOW); 
 }
