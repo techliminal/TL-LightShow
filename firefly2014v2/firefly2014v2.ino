@@ -97,6 +97,8 @@ void dostuff(void) {
       Serial.println("11111");
   } else if (less > 0x1520 && less < 0x1620){
      all_off(); 
+  } else if (less > 0x1620 && less <= 0x1A0D){
+    Serial.println('22222');
   }
 }
 
