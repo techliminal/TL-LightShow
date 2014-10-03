@@ -25,7 +25,7 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 #define NUMPULSES    30  // max IR pulse pairs to sample
 #define RESOLUTION     2  // // time between IR measurements
  
-// we will store up to 100 pulse pairs (this is -a lot-)
+// we will store up to 30 pulse pairs (this is -a lot-)
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
@@ -54,8 +54,8 @@ void setup(void) {
  
 void loop(void) {
 
-  uint16_t numpulse=listenForIR(); // Wait for an IR Code
-
+   uint16_t numpulse=listenForIR(); // Wait for an IR Code
+   
   // Process the pulses to get a single number representing code
   for (int i = 0; i < NUMPULSES; i++) {
     irCode=irCode<<1;
@@ -66,8 +66,8 @@ void loop(void) {
     }
   }
   
-  dostuff();  // Print IR code to softwareserial
-  
+  dostuff(); 
+ 
 
 }
 void dostuff(void) {
@@ -89,7 +89,7 @@ void dostuff(void) {
   
   switch (mode){
     case 1:
-     blink4();
+     all_off();
      break;
     case 2:
      FireFly(6000);
@@ -99,7 +99,7 @@ void dostuff(void) {
      break;
     case 4: 
     default:
-     all_off();
+     blink4();
   }
 }
 
@@ -107,12 +107,14 @@ void dostuff(void) {
 
 uint16_t listenForIR() {  // IR receive code
   currentpulse = 0;
-  for (int i; i<1000; i++) {
+  int j=0, i=0;
+  for (i = 0; i<300; i++){
    unsigned int highpulse, lowpulse;  // temporary storage timing
    highpulse = lowpulse = 0; // start out with no pulse length 
   
    while (IRpin_PIN & _BV(IRpin)) { // got a high pulse
       highpulse++; 
+      j++;
       delayMicroseconds(RESOLUTION);
       if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
         return currentpulse; 
@@ -122,6 +124,7 @@ uint16_t listenForIR() {  // IR receive code
 
    while (! (IRpin_PIN & _BV(IRpin))) { // got a low pulse
       lowpulse++; 
+      j++;
       delayMicroseconds(RESOLUTION);
       if (((lowpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
         return currentpulse; 
@@ -129,6 +132,9 @@ uint16_t listenForIR() {  // IR receive code
    }
    pulses[currentpulse][1] = lowpulse;
    currentpulse++;
+   if (j>50000){
+      return 0; 
+   }
   }
 }
 
