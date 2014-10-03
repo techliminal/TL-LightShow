@@ -29,6 +29,8 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
+byte mode = 0;
+
  
 void setup(void) {
   pinMode(IRpin, INPUT);   // Listen to IR receiver on Trinket/Gemma pin D2
@@ -51,7 +53,7 @@ void setup(void) {
 }
  
 void loop(void) {
-  
+
   uint16_t numpulse=listenForIR(); // Wait for an IR Code
 
   // Process the pulses to get a single number representing code
@@ -75,17 +77,29 @@ void dostuff(void) {
   half=irCode>>16;  // Get first 16 bits of code
   less = irCode & 0xFFFF;  // the second 16 bits
   
-  if (less > 0xE000) return;
-  
-  
   if (less > 0 && less < 0x1350){
-    all_on();
+    mode = 1;
   } else if (less > 0x1350 && less < 0x1520){
-      FireFly(6000);
+    mode = 2;
   } else if (less > 0x1520 && less < 0x1620){
-     all_off(); 
+    mode = 3; 
   } else if (less > 0x1620 && less <= 0x1A0D){
-     FireFly(2000);
+    mode = 4;
+  }
+  
+  switch (mode){
+    case 1:
+     blink4();
+     break;
+    case 2:
+     FireFly(6000);
+     break;
+    case 3:
+     all_on();
+     break;
+    case 4: 
+    default:
+     all_off();
   }
 }
 
@@ -93,7 +107,7 @@ void dostuff(void) {
 
 uint16_t listenForIR() {  // IR receive code
   currentpulse = 0;
-  while (1) {
+  for (int i; i<1000; i++) {
    unsigned int highpulse, lowpulse;  // temporary storage timing
    highpulse = lowpulse = 0; // start out with no pulse length 
   
@@ -131,11 +145,15 @@ void blink4(){
   
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
+byte del, lop, led1, led2, led3;
+byte counter;
+
   del = 150;
   lop = 100;
+
    
-  while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
-         
+//  while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
+    
     digitalWrite(LED1, LOW); 
     digitalWrite(LED2, LOW);
     digitalWrite(LED3, LOW);                  //All LEDs off
@@ -187,33 +205,24 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
       digitalWrite(LED3, led3);                  //All LEDs off or on
       delay(1);
      }
-     delay(1000); 
-  }
+ // }
 }
 
 
 void pulse_up(int lop, byte led){
      
-  j = 0;
+  int j = 0;
 
   digitalWrite(led, LOW);
   
   while (j < lop) {                    //Pulse LED up
-  
-      if (inputVal > 0)  break;        //Check for Button Press
-  
-      for (int n = 1; n + j > 0; n--){
-        
-          if (inputVal > 0)  break;    //Check for Button Press
-          
+    
+      for (int n = 1; n + j > 0; n--){        
         digitalWrite(led, HIGH);    //LED on
         delayMicroseconds(10); 
       }
 
-      for (int m = 0; m + j < lop; m++){
-        
-          if (inputVal > 0)  break;    //Check for Button Press
-          
+      for (int m = 0; m + j < lop; m++){          
         digitalWrite(led, LOW);     //LED off
         delayMicroseconds(10); 
       }
@@ -223,37 +232,24 @@ void pulse_up(int lop, byte led){
 }
 
 void pulse_down(int lop, byte ledPin){
-      j = 0;
+    int  j = 0;
     digitalWrite(ledPin, HIGH);             //Turn LED on
       
       while ( j < lop){                       //Keep LEDs on for a certain delay
-        
-          if (inputVal > 0)  break;         //Check for Button Press
-          
         delay(11);
         j++;
       }
-   
-    j = 0;
- 
+    
       j = 0;
  
       while (j < lop) {                      //Fade LED down
      
-          if (inputVal > 0)  break;          //Check for Button Press 
-     
-          for (int n = 1; n + j > 0; n -= 1){
-            
-              if (inputVal > 0)  break;      //Check for Button Press
-              
+          for (int n = 1; n + j > 0; n -= 1){           
             digitalWrite(ledPin, LOW);       //LED off
             delayMicroseconds(10); 
           }
     
           for (int m = 0; m + j < lop; m += 1){
-             
-              if (inputVal > 0)  break;      //Check for Button Press
-              
             digitalWrite(ledPin, HIGH);      //LED on
             delayMicroseconds(10); 
           }
