@@ -29,7 +29,7 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
-byte mode = 0;
+byte mode = 4;
 
  
 void setup(void) {
@@ -39,7 +39,7 @@ void setup(void) {
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
   randomSeed(analogRead(0));                           //Not so random seed
   
-  for(int i=0; i< 3; i++){
+  for(int i=0; i< 2; i++){
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
@@ -54,9 +54,34 @@ void setup(void) {
  
 void loop(void) {
 
-   uint16_t numpulse=listenForIR(); // Wait for an IR Code
+   uint16_t numpulse = 0;
    
-  // Process the pulses to get a single number representing code
+   blink1_1();
+   numpulse = listenForIR(); // Wait for an IR Code
+   blink1_1();
+  
+    if (numpulse > 0) mode = getMode(); 
+  
+    switch (mode){
+    case 1:
+     all_off();
+     break;
+    case 2:
+     FireFly(6000);
+     break;
+    case 3:
+     all_on();
+     break;
+    case 4: 
+    default:
+     blink4();
+  }
+ 
+
+}
+byte getMode(void) {
+  
+    // Process the pulses to get a single number representing code
   for (int i = 0; i < NUMPULSES; i++) {
     irCode=irCode<<1;
     if((pulses[i][0] * RESOLUTION)>0&&(pulses[i][0] * RESOLUTION)<500) {
@@ -66,11 +91,6 @@ void loop(void) {
     }
   }
   
-  dostuff(); 
- 
-
-}
-void dostuff(void) {
   uint16_t half;
   uint16_t less;
   
@@ -87,44 +107,43 @@ void dostuff(void) {
     mode = 4;
   }
   
-  switch (mode){
-    case 1:
-     all_off();
-     break;
-    case 2:
-     FireFly(6000);
-     break;
-    case 3:
-     all_on();
-     break;
-    case 4: 
-    default:
-     blink4();
-  }
+  return mode;
+
 }
-
-
 
 uint16_t listenForIR() {  // IR receive code
   currentpulse = 0;
   int j=0, i=0;
-  for (i = 0; i<300; i++){
+ 
+  
+  for (i=0; i < NUMPULSES; i++){
+     pulses[i][0] = 0;
+     pulses[i][1] = 0; 
+  }
+  for (i = 0; i<1500000; i++){
    unsigned int highpulse, lowpulse;  // temporary storage timing
    highpulse = lowpulse = 0; // start out with no pulse length 
   
    while (IRpin_PIN & _BV(IRpin)) { // got a high pulse
       highpulse++; 
-      j++;
+
       delayMicroseconds(RESOLUTION);
       if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
         return currentpulse; 
+      } else if ((highpulse >= 30000) && (currentpulse == 0)){
+         //blink2_1();
+         highpulse = 0;
+         break;
       }
    }
+   
+   
    pulses[currentpulse][0] = highpulse;
 
    while (! (IRpin_PIN & _BV(IRpin))) { // got a low pulse
       lowpulse++; 
-      j++;
+
+      //if (j > 10000) return currentpulse;
       delayMicroseconds(RESOLUTION);
       if (((lowpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
         return currentpulse; 
@@ -132,10 +151,8 @@ uint16_t listenForIR() {  // IR receive code
    }
    pulses[currentpulse][1] = lowpulse;
    currentpulse++;
-   if (j>50000){
-      return 0; 
-   }
   }
+  return currentpulse; 
 }
 
 void blink4(){
@@ -274,4 +291,16 @@ void all_off(){
    digitalWrite(LED1, LOW); 
    digitalWrite(LED2, LOW);
    digitalWrite(LED3, LOW);
+}
+
+void blink1_1(){
+   digitalWrite(LED3, HIGH);
+   delay(100);
+   digitalWrite(LED3, LOW); 
+}
+
+void blink2_1(){
+   digitalWrite(LED2, HIGH);
+   delay(10);
+   digitalWrite(LED2, LOW); 
 }
