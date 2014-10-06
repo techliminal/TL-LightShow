@@ -56,9 +56,9 @@ void loop(void) {
 
    uint16_t numpulse = 0;
    
-   blink1_1();
+   //blink1_1();
    numpulse = listenForIR(); // Wait for an IR Code
-   blink1_1();
+   //blink1_1();
   
     if (numpulse > 0) mode = getMode(); 
   
@@ -124,22 +124,6 @@ uint16_t listenForIR() {  // IR receive code
    unsigned int highpulse, lowpulse;  // temporary storage timing
    highpulse = lowpulse = 0; // start out with no pulse length 
   
-   while (IRpin_PIN & _BV(IRpin)) { // got a high pulse
-      highpulse++; 
-
-      delayMicroseconds(RESOLUTION);
-      if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
-        return currentpulse; 
-      } else if ((highpulse >= 30000) && (currentpulse == 0)){
-         //blink2_1();
-         highpulse = 0;
-         break;
-      }
-   }
-   
-   
-   pulses[currentpulse][0] = highpulse;
-
    while (! (IRpin_PIN & _BV(IRpin))) { // got a low pulse
       lowpulse++; 
 
@@ -150,6 +134,22 @@ uint16_t listenForIR() {  // IR receive code
       }
    }
    pulses[currentpulse][1] = lowpulse;
+  
+   while (IRpin_PIN & _BV(IRpin)) { // got a high pulse
+      highpulse++; 
+
+      delayMicroseconds(RESOLUTION);
+      if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
+        return currentpulse; 
+      } else if ((highpulse >= 60000) && (currentpulse == 0)){
+         //blink2_1();
+         highpulse = 0;
+         break;
+      }
+   }
+   
+   
+   pulses[currentpulse][0] = highpulse;
    currentpulse++;
   }
   return currentpulse; 
