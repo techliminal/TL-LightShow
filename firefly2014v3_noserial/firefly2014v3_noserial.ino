@@ -53,32 +53,36 @@ void setup(void) {
 }
  
 void loop(void) {
-
-   uint16_t numpulse = 0;
-   
-   //blink1_1();
-   numpulse = listenForIR(); // Wait for an IR Code
-   //blink1_1();
   
-    if (numpulse > 0) mode = getMode(); 
-  
+   checkInput(); 
+    
     switch (mode){
     case 1:
      all_off();
      break;
     case 2:
-     FireFly(6000);
+     FireFly(5000);
      break;
     case 3:
-     all_on();
+     FireFly(10000);
      break;
     case 4: 
     default:
-     blink4();
+     pulseBlue();
   }
  
 
 }
+
+// check to see if there's an input on the IR.
+
+byte checkInput(){
+   uint16_t numpulse = 0;
+   numpulse = listenForIR(); // Wait for an IR Code
+   if (numpulse > 0) mode = getMode(); 
+}
+
+
 byte getMode(void) {
   
     // Process the pulses to get a single number representing code
@@ -171,6 +175,8 @@ void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fa
 byte del, lop, led1, led2, led3;
 byte counter;
 
+byte curMode = mode;
+
   del = 150;
   lop = 100;
 
@@ -200,28 +206,35 @@ byte counter;
    
    for (int i = 0; i<z+lop; i++){
        if (i == min1){
-           led1 = HIGH;
+           led1 = LOW;
            pulse_up(lop, LED1);
+           if (checkInput() != curMode) return;
+           
        }
        if (i == min2){
-           led2=HIGH;
+           led2=LOW;
            pulse_up(lop, LED2);
+           if (checkInput() != curMode) return;
        }
        if(i == min3){
-         led3=HIGH;
-         pulse_up(lop, LED3);    
-       }
+         led3=LOW;
+         pulse_up(lop, LED3);
+         if (checkInput() != curMode) return;      
+        }
        if (i == max1){
-           led1 = LOW;
+           led1 = HIGH;
            pulse_down(lop, LED1);
+           if (checkInput() != curMode) return;
        }
        if (i == max2){
-           led2=LOW;
+           led2=HIGH;
            pulse_down(lop, LED2);
+           if (checkInput() != curMode) return;
        }
        if(i == max3){
-         led3=LOW;
+         led3=HIGH;
          pulse_down(lop, LED3);    
+         if (checkInput() != curMode) return;
        }
       digitalWrite(LED1, led1); 
       digitalWrite(LED2, led2);
@@ -303,4 +316,26 @@ void blink2_1(){
    digitalWrite(LED2, HIGH);
    delay(10);
    digitalWrite(LED2, LOW); 
+}
+
+void pulseBlue(){
+ 
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  pulse_up(200, LED1); 
+  pulse_down(200, LED1); 
+  delay(1000);
+}
+
+
+void pulseGreen(){
+ 
+  digitalWrite(LED1, LOW);
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);
+  pulse_up(200, LED3);  
+  pulse_down(200, LED3);
+  delay(1000);
+ 
 }
