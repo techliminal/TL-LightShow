@@ -180,59 +180,57 @@ byte curMode = mode;
   del = 150;
   lop = 100;
 
+      
+  digitalWrite(LED1, LOW); 
+  digitalWrite(LED2, LOW);
+  digitalWrite(LED3, LOW);                  //All LEDs off
+    
+  led1 =  led2 = led3 = LOW;
+  // pick a duration for the cycle, and then loop.  Duration should be a number of seconds, not less
+    
+    
+  // decide whether a given light will be on or off.  Each light will have a modifier.
    
-//  while(1) {                               //Continue to inifitely run this pattern until the button interrupts the loop
-    
-    digitalWrite(LED1, LOW); 
-    digitalWrite(LED2, LOW);
-    digitalWrite(LED3, LOW);                  //All LEDs off
-    
-   led1 =  led2 = led3 = LOW;
-    // pick a duration for the cycle, and then loop.  Duration should be a number of seconds, not less
-    
-    
-    // decide whether a given light will be on or off.  Each light will have a modifier.
-   
-   int half = z/2;
-   randomSeed(analogRead(2));
-   //int min1 = random(z);
-   int min1 = random(half);
-   int min2 = random(half);
-   int min3 = random(half);
+  int half = z/2;
+  randomSeed(analogRead(2));
+  int min1 = random(half);
+  int min2 = random(half);
+  int min3 = random(half);
  
-   int max1 = z-min1;
-   int max2 = z-min2;
-   int max3 = z-min3;
+  int max1 = z-min1;
+  int max2 = z-min2;
+  int max3 = z-min3;
    
    for (int i = 0; i<z+lop; i++){
        if (i == min1){
-           led1 = LOW;
+           led1 = HIGH;
            pulse_up(lop, LED1);
            if (checkInput() != curMode) return;
            
        }
        if (i == min2){
-           led2=LOW;
+           led2=HIGH;
            pulse_up(lop, LED2);
            if (checkInput() != curMode) return;
        }
        if(i == min3){
-         led3=LOW;
+         led3=HIGH;
          pulse_up(lop, LED3);
          if (checkInput() != curMode) return;      
         }
+        
        if (i == max1){
-           led1 = HIGH;
+           led1 = LOW;
            pulse_down(lop, LED1);
            if (checkInput() != curMode) return;
        }
        if (i == max2){
-           led2=HIGH;
+           led2=LOW;
            pulse_down(lop, LED2);
            if (checkInput() != curMode) return;
        }
        if(i == max3){
-         led3=HIGH;
+         led3=LOW;
          pulse_down(lop, LED3);    
          if (checkInput() != curMode) return;
        }
@@ -241,7 +239,7 @@ byte curMode = mode;
       digitalWrite(LED3, led3);                  //All LEDs off or on
       delay(1);
      }
- // }
+         
 }
 
 
@@ -265,6 +263,7 @@ void pulse_up(int lop, byte led){
   
     j++;
   }
+ digitalWrite(led, HIGH);    //LED on
 }
 
 void pulse_down(int lop, byte ledPin){
@@ -292,6 +291,7 @@ void pulse_down(int lop, byte ledPin){
       
         j++;
       }
+   digitalWrite(ledPin, LOW);       //LED off
 } 
 
 void all_on(){
@@ -319,13 +319,14 @@ void blink2_1(){
 }
 
 void pulseBlue(){
- 
+//  delay((random(200))*100);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(LED3, LOW);
-  pulse_up(200, LED1); 
-  pulse_down(200, LED1); 
-  delay(1000);
+  pulse_up((random(50))*5, LED1); 
+  pulse_down((random(50))*5, LED1); 
+  delay((random(100))*50);
+//  delay((1000)*random(6));
 }
 
 
