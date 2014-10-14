@@ -178,7 +178,7 @@ byte counter;
 byte curMode = mode;
 
   del = 150;
-  lop = 100;
+  lop = 200;
 
       
   digitalWrite(LED1, LOW); 
@@ -205,33 +205,39 @@ byte curMode = mode;
        if (i == min1){
            led1 = HIGH;
            pulse_up(lop, LED1);
+           delay(1000);
            if (checkInput() != curMode) return;
            
        }
        if (i == min2){
            led2=HIGH;
            pulse_up(lop, LED2);
+           delay(1000);
            if (checkInput() != curMode) return;
        }
        if(i == min3){
          led3=HIGH;
          pulse_up(lop, LED3);
+         delay(1000);
          if (checkInput() != curMode) return;      
         }
         
        if (i == max1){
            led1 = LOW;
            pulse_down(lop, LED1);
+           delay(1000);
            if (checkInput() != curMode) return;
        }
        if (i == max2){
            led2=LOW;
+           delay(1000);
            pulse_down(lop, LED2);
            if (checkInput() != curMode) return;
        }
        if(i == max3){
          led3=LOW;
          pulse_down(lop, LED3);    
+         delay(1000);
          if (checkInput() != curMode) return;
        }
       digitalWrite(LED1, led1); 
