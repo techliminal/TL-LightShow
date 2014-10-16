@@ -61,7 +61,7 @@ void loop(void) {
      all_off();
      break;
     case 2:
-     FireFly(5000);
+     FireFly(2000);
      break;
     case 3:
      FireFly(10000);
@@ -245,6 +245,8 @@ byte curMode = mode;
       digitalWrite(LED3, led3);                  //All LEDs off or on
       delay(1);
      }
+     
+     delay(2500);
          
 }
 
