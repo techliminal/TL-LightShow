@@ -135,6 +135,10 @@ void blink4(){
       delay(500);
       digitalWrite(LED1, LOW);
       delay(500);
+      digitalWrite(LED1, HIGH);
+      delay(500);
+      digitalWrite(LED1, LOW);
+      delay(500);
   }
 }
 
