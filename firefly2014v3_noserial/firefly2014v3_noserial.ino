@@ -57,16 +57,16 @@ void loop(void) {
    checkInput(); 
     
     switch (mode){
-    case 1:
+    case 1:  // down
      all_off();
      break;
-    case 2:
+    case 2: // up
      FireFly(2000);
      break;
-    case 3:
+    case 3:  // left
      FireFly(10000);
      break;
-    case 4: 
+    case 4: // middle
     default:
      pulseBlue();
   }
