@@ -15,12 +15,15 @@ GNU Lesser General Public License as published by the Free Software Foundation v
 at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 */
 #define IRpin_PIN PINB // ATTiny85 had Port B pins
-#define IRpin 3
+#define IRpin 8
 
-#define LED1 1 
-#define LED2 4
-#define LED3 0
- 
+#define MOTOR1 2
+#define MOTOR2 3
+#define MOTOR3 4
+#define MOTOR4 5
+#define MOTOR5 6
+#define MOTOR6 7
+
 #define MAXPULSE    5000  // the maximum pulse we'll listen for - 5 milliseconds 
 #define NUMPULSES    30  // max IR pulse pairs to sample
 #define RESOLUTION     2  // // time between IR measurements
@@ -34,22 +37,25 @@ byte mode = 3;
  
 void setup(void) {
   pinMode(IRpin, INPUT);   // Listen to IR receiver on Trinket/Gemma pin D2
-  pinMode(LED1, OUTPUT);                      //Create (D4) LED1 as an output
-  pinMode(LED2, OUTPUT);                      //Create (D1) LED2 as an output 
-  pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
+  pinMode(MOTOR1, OUTPUT);                      //Create (D4) MOTOR1 as an output
+  pinMode(MOTOR2, OUTPUT);                      //Create (D4) MOTOR1 as an output
+  pinMode(MOTOR3, OUTPUT);                      //Create (D4) MOTOR1 as an output
+  pinMode(MOTOR4, OUTPUT);                      //Create (D4) MOTOR1 as an output
+  pinMode(MOTOR5, OUTPUT);                      //Create (D1) MOTOR2 as an output 
+  pinMode(MOTOR6, OUTPUT);                      //Create (D0) MOTOR3 as an output 
   randomSeed(analogRead(0));                           //Not so random seed
   
   for(int i=0; i< 2; i++){
-      digitalWrite(LED1, HIGH);
-      digitalWrite(LED2, HIGH);
-      digitalWrite(LED3, HIGH);
+      digitalWrite(MOTOR1, HIGH);
+      digitalWrite(MOTOR2, HIGH);
+      digitalWrite(MOTOR3, HIGH);
       delay(500);
-      digitalWrite(LED1, LOW);
-      digitalWrite(LED2, LOW);
-      digitalWrite(LED3, LOW);
+      digitalWrite(MOTOR1, LOW);
+      digitalWrite(MOTOR2, LOW);
+      digitalWrite(MOTOR3, LOW);
       delay(500);
   }
-  
+  Serial.begin(9600);
 }
  
 void loop(void) {
@@ -79,13 +85,13 @@ void loop(void) {
 byte checkInput(){
 
 for(int i=0; i< 5; i++){ //flash LEDs in listen mode
-      digitalWrite(LED1, HIGH);
-      digitalWrite(LED2, HIGH);
-      digitalWrite(LED3, HIGH);
+      digitalWrite(MOTOR1, HIGH);
+      digitalWrite(MOTOR2, HIGH);
+      digitalWrite(MOTOR3, HIGH);
       delay(150);
-      digitalWrite(LED1, LOW);
-      digitalWrite(LED2, LOW);
-      digitalWrite(LED3, LOW);
+      digitalWrite(MOTOR1, LOW);
+      digitalWrite(MOTOR2, LOW);
+      digitalWrite(MOTOR3, LOW);
       delay(150);
   }
   
@@ -125,7 +131,9 @@ byte getMode(void) {
   } else if (less > 0x1620 && less <= 0x1A0D){ // middle button
     mode = 4;
   }
-  
+     Serial.print("signal rec'd: ");
+      Serial.print(mode);  
+     Serial.println("");
   return mode;
 
 }
@@ -178,6 +186,9 @@ uint16_t listenForIR() {  // IR receive code
   
 void FireFly(unsigned int z){              //Randomly selected LEDs Pulse and fade like Fire flies
 
+     Serial.print("Running mode firefly");  
+     Serial.println("");
+
 byte del, lop, led1, led2, led3;
 byte counter;
 
@@ -187,9 +198,9 @@ byte curMode = mode;
   lop = 200;
 
       
-  digitalWrite(LED1, LOW); 
-  digitalWrite(LED2, LOW);
-  digitalWrite(LED3, LOW);                  //All LEDs off
+  digitalWrite(MOTOR1, LOW); 
+  digitalWrite(MOTOR2, LOW);
+  digitalWrite(MOTOR3, LOW);                  //All LEDs off
     
   led1 =  led2 = led3 = LOW;
   // pick a duration for the cycle, and then loop.  Duration should be a number of seconds, not less
@@ -210,45 +221,45 @@ byte curMode = mode;
    for (int i = 0; i<z+lop; i++){
        if (i == min1){
            led1 = HIGH;
-           pulse_up(lop, LED1);
+           pulse_up(lop, MOTOR1);
            delay(1000);
            if (checkInput() != curMode) return;
            
        }
        if (i == min2){
            led2=HIGH;
-           pulse_up(lop, LED2);
+           pulse_up(lop, MOTOR2);
            delay(1000);
            if (checkInput() != curMode) return;
        }
        if(i == min3){
          led3=HIGH;
-         pulse_up(lop, LED3);
+         pulse_up(lop, MOTOR3);
          delay(1000);
          if (checkInput() != curMode) return;      
         }
         
        if (i == max1){
            led1 = LOW;
-           pulse_down(lop, LED1);
+           pulse_down(lop, MOTOR1);
            delay(1000);
            if (checkInput() != curMode) return;
        }
        if (i == max2){
            led2=LOW;
            delay(1000);
-           pulse_down(lop, LED2);
+           pulse_down(lop, MOTOR2);
            if (checkInput() != curMode) return;
        }
        if(i == max3){
          led3=LOW;
-         pulse_down(lop, LED3);    
+         pulse_down(lop, MOTOR3);    
          delay(1000);
          if (checkInput() != curMode) return;
        }
-      digitalWrite(LED1, led1); 
-      digitalWrite(LED2, led2);
-      digitalWrite(LED3, led3);                  //All LEDs off or on
+      digitalWrite(MOTOR1, led1); 
+      digitalWrite(MOTOR2, led2);
+      digitalWrite(MOTOR3, led3);                  //All LEDs off or on
       delay(1);
      }
          
@@ -307,38 +318,46 @@ void pulse_down(int lop, byte ledPin){
 } 
 
 void all_on(){
-    digitalWrite(LED1, HIGH);
-    digitalWrite(LED2, HIGH);
-    digitalWrite(LED3, HIGH);
+     Serial.print("Running mode all_on");  
+     Serial.println("");
+    digitalWrite(MOTOR1, HIGH);
+    digitalWrite(MOTOR2, HIGH);
+    digitalWrite(MOTOR3, HIGH);
 }
 
 void all_off(){
-   digitalWrite(LED1, LOW); 
-   digitalWrite(LED2, LOW);
-   digitalWrite(LED3, LOW);
+     Serial.print("Running mode all_off");  
+     Serial.println("");
+   digitalWrite(MOTOR1, LOW); 
+   digitalWrite(MOTOR2, LOW);
+   digitalWrite(MOTOR3, LOW);
 }
 
 void pulseBlue(){
+     Serial.print("Running mode blue");  
+     Serial.println("");
 //  delay((random(200))*100);
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
-  digitalWrite(LED3, LOW);
-  pulse_up((random(50))*5, LED1); 
-  pulse_down((random(50))*5, LED1); 
+  digitalWrite(MOTOR1, LOW);
+  digitalWrite(MOTOR2, LOW);
+  digitalWrite(MOTOR3, LOW);
+  pulse_up((random(50))*5, MOTOR1); 
+  pulse_down((random(50))*5, MOTOR1); 
   delay((random(100))*50);
 //  delay((1000)*random(6));
 }
 
 
 void pulseGreen(){
+     Serial.print("Running mode green");  
+     Serial.println("");
  
-  digitalWrite(LED1, LOW);
-  digitalWrite(LED2, LOW);
-  digitalWrite(LED3, LOW);
-  pulse_up((random(50))*5, LED3);  
-  pulse_up((random(50))*5, LED2);
-  pulse_down((random(50))*5, LED3);
-  pulse_down((random(50))*5, LED2);
+  digitalWrite(MOTOR1, LOW);
+  digitalWrite(MOTOR2, LOW);
+  digitalWrite(MOTOR3, LOW);
+  pulse_up((random(50))*5, MOTOR3);  
+  pulse_up((random(50))*5, MOTOR2);
+  pulse_down((random(50))*5, MOTOR3);
+  pulse_down((random(50))*5, MOTOR2);
   delay((random(150))*5);
  
 }
