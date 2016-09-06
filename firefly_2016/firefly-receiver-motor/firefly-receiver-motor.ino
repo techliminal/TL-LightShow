@@ -44,6 +44,11 @@ void setup(void) {
   pinMode(MOTOR5, OUTPUT);                      //Create (D1) MOTOR2 as an output 
   pinMode(MOTOR6, OUTPUT);                      //Create (D0) MOTOR3 as an output 
   randomSeed(analogRead(0));                           //Not so random seed
+
+  Serial.begin(9600);
+for(int i=0; i< 200; i++){
+     Serial.println("setup");  
+}
   
   for(int i=0; i< 2; i++){
       digitalWrite(MOTOR1, HIGH);
@@ -55,13 +60,13 @@ void setup(void) {
       digitalWrite(MOTOR3, LOW);
       delay(500);
   }
-  Serial.begin(9600);
 }
  
 void loop(void) {
   
    checkInput(); 
-    
+         Serial.println("check input");  
+  
     switch (mode){
     case 1:  
      all_off();

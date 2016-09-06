@@ -66,7 +66,14 @@ void loop(void) {
     case 3:
      FireFly(10000);
      break;
-    case 4: 
+    case 4:
+      blinkBlue(10);
+      delay(2000);
+      break;
+    case 5: 
+      blinkGreen(10);
+      delay(2000);
+      break;
     default:
      pulseBlue();
   }
@@ -78,17 +85,18 @@ void loop(void) {
 
 byte checkInput(){
 
+/*
 for(int i=0; i< 5; i++){ //flash LEDs in listen mode
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
-      delay(150);
+      delay(100);
       digitalWrite(LED1, LOW);
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
-      delay(150);
+      delay(100);
   }
-  
+ */
    uint16_t numpulse = 0;
    numpulse = listenForIR(); // Wait for an IR Code
    if (numpulse > 0) mode = getMode(); 
@@ -122,9 +130,18 @@ byte getMode(void) {
     mode = 2;
   } else if (less > 0x1520 && less < 0x1620){
     mode = 3; 
-  } else if (less > 0x1620 && less <= 0x1A0D){ // middle button
+  } else if (less > 0x1620 && less <= 0x1920){ 
     mode = 4;
+  } 
+   else if (less > 0x1920 && less <= 0x1A0D){
+    mode = 5;
   }
+  
+  else if (less > 0x1A0D && less <= 0x200D ){
+    mode = 6;
+    
+  }
+
   
   return mode;
 
@@ -342,3 +359,23 @@ void pulseGreen(){
   delay((random(150))*5);
  
 }
+
+void blinkBlue(int numblinks){
+   for(int i=0; i<numblinks; i++){
+       digitalWrite(LED1, HIGH);   
+       delay(300);
+       digitalWrite(LED1, LOW);
+       delay(300);
+  }
+}
+
+void blinkGreen(int numblinks){
+ for(int i=0; i<numblinks; i++){
+       digitalWrite(LED2, HIGH);   
+       delay(300);
+       digitalWrite(LED2, LOW);
+       delay(300);
+  }
+}
+
+
