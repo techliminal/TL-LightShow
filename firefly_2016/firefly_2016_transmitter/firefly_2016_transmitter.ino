@@ -22,11 +22,11 @@ SharpIR sharp(ir, 25, 93, model);
 
 enum {
     CMD_LEN = 32,
-    GREEN   = 0x77E15061,  // works, all green, mode 2
-    AOFF    = 0x77E10C68,  // works, off, mode 1
-    BLUE    = 0x77E1A05E,  //works, blue, mode 4
-    PREV    = 0x77E11A00,
-    NEXT    = 0x77E116AA,
+    GREEN   = 0x77E15061,  // works, pulse green, mode 2
+    AOFF    = 0x77E10000, // original value 0x77E10C68,  works, off, mode 1
+    BLUE    = 0x77E1A05E,  //works, blink green, mode 4
+    PREV    = 0x77E11F00, // original value 0x77E11A00,  mode 5 blink blue
+    NEXT    = 0x77E116AA,  // mode 6
     FIREFLY    = 0x77E15C5E //works, firefly, mode 3
   };
 
@@ -51,34 +51,36 @@ void setup()
 }
 
 void loop() {
-//  const char command = Serial.read();
-const char command = input_measure();
+  const char command = Serial.read();
+//   const char command = input_measure();
        Serial.print(command);  
      Serial.println("");
 
   switch(command) {
-    case 'p':   // green
-     Serial.print("green");
-     send_command(GREEN); 
-     break;
-    case 'o':  // works, all blue
-     Serial.print("blue");
-      send_command(BLUE);
-      break;    
-    case 'i':   // off.  Works
-     Serial.print("off");
+    case '1':   // off.  Works
+     Serial.print("mode 1 / off");
       send_command(AOFF);
      break;
-    case 'u':  //firefly
-     Serial.print("firefly");
+    case '2':   // pulse green
+     Serial.print("mode 2 / pulse green");
+     send_command(GREEN); 
+     break;
+    case '3':  //firefly
+     Serial.print("mode 3 / firefly");
       send_command(FIREFLY);
      break;
-    case 't': 
-      send_command(PREV);
-      break;
-    case 'r':
-      send_command(NEXT);
+    case '4':  // 
+     Serial.print("mode 4 / blink green");
+      send_command(BLUE);
+      break;    
+    case '5':
+    Serial.print("Mode 5 / blink blue");
+    send_command(NEXT);
        break;
+    case '6': 
+    Serial.print("mode 6 / pulse blue");
+    send_command(PREV);
+      break;
   }
 }
 
