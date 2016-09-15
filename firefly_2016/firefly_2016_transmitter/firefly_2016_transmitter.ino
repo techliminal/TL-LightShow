@@ -24,9 +24,9 @@ enum {
     CMD_LEN = 32,
     GREEN   = 0x77E15061,  // works, pulse green, mode 2
     AOFF    = 0x77E10000, // original value 0x77E10C68,  works, off, mode 1
-    BLUE    = 0x77E1A05E,  //works, blink green, mode 4
-    PREV    = 0x77E11F00, // original value 0x77E11A00,  mode 5 blink blue
-    NEXT    = 0x77E116AA,  // mode 6
+    BLUE    = 0x77E1A05E,  //works, mode 5
+    PREV    = 0x77E11F00, // original value 0x77E11A00,  mode 6
+    NEXT    = 0x77E116AA,  // mode 4
     FIREFLY    = 0x77E15C5E //works, firefly, mode 3
   };
 
@@ -69,15 +69,15 @@ void loop() {
      Serial.print("mode 3 / firefly");
       send_command(FIREFLY);
      break;
-    case '4':  // 
-     Serial.print("mode 4 / blink green");
-      send_command(BLUE);
-      break;    
-    case '5':
-    Serial.print("Mode 5 / blink blue");
+    case '4':  //
+    Serial.print("Mode 4 / blink blue");
     send_command(NEXT);
        break;
-    case '6': 
+    case '5':  // 
+     Serial.print("mode 5 / blink green");
+      send_command(BLUE);
+      break;    
+   case '6': 
     Serial.print("mode 6 / pulse blue");
     send_command(PREV);
       break;
