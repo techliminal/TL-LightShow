@@ -11,12 +11,20 @@
 
 #include <IRremote.h>
 
-#include <SharpIR.h>
+//#include <SharpIR.h>
 
-#define ir A0
-#define model 1080
+//#define ir A0
+//#define model 1080
 
-SharpIR sharp(ir, 25, 93, model);
+#include <NewPing.h>
+ 
+#define TRIGGER_PIN  8
+#define ECHO_PIN     9
+#define MAX_DISTANCE 200
+//#define TIMER_ENABLED false
+
+//SharpIR sharp(ir, 25, 93, model);
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
 
 // we need firefly, mode 3
 
@@ -47,10 +55,17 @@ void send_command(long command){
 void setup()
 {
   Serial.begin(9600);
-  pinMode (ir, INPUT);
+//  pinMode (ir, INPUT);
 }
 
 void loop() {
+
+  int uS = sonar.ping();
+  Serial.print("Ping: ");
+  Serial.print(uS / US_ROUNDTRIP_CM);
+  Serial.println("cm");
+
+  
   const char command = Serial.read();
 //   const char command = input_measure();
        Serial.print(command);  
@@ -84,6 +99,7 @@ void loop() {
   }
 }
 
+/*
 char input_measure(){
   char input = 'u';
   
@@ -115,3 +131,5 @@ char input_measure(){
   Serial.print(input);
   return input;
 }
+
+*/
