@@ -29,8 +29,9 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
-byte mode = 3;
-
+byte mode = 4;
+unsigned int flashSpeed = 500;
+bool didIt = false;
  
 void setup(void) {
   pinMode(IRpin, INPUT);   // Listen to IR receiver on Trinket/Gemma pin D2
@@ -59,23 +60,23 @@ void loop(void) {
     switch (mode){
     case 1:  
      all_off();
+     didIt = true;
      break;
     case 2:
-     pulseGreen();
+     pulseGreen(flashSpeed);
+     didIt = true;
      break;
     case 3:
-     FireFly(10000);
+     FireFly(flashSpeed);
+     didIt = true;
      break;
     case 4:
-      blinkBlue(10);
-      delay(2000);
-      break;
-    case 5: 
-      blinkGreen(10);
-      delay(2000);
+      pulseBlue(flashSpeed);
+      didIt = true;
       break;
     default:
-     pulseBlue();
+     blinkBlue(mode);
+     delay(1000);
   }
  
 
@@ -85,18 +86,17 @@ void loop(void) {
 
 byte checkInput(){
 
-/*
-for(int i=0; i< 5; i++){ //flash LEDs in listen mode
-      digitalWrite(LED1, HIGH);
-      digitalWrite(LED2, HIGH);
+
+for(int i=0; i< 4; i++){ //flash LEDs in listen mode
+
+/*      digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
       delay(100);
-      digitalWrite(LED1, LOW);
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
-      delay(100);
+      delay(100);*/
   }
- */
+
    uint16_t numpulse = 0;
    numpulse = listenForIR(); // Wait for an IR Code
    if (numpulse > 0) mode = getMode(); 
@@ -107,7 +107,11 @@ for(int i=0; i< 5; i++){ //flash LEDs in listen mode
 
 
 byte getMode(void) {
-  
+
+  if (didIt == false){
+    return mode;
+  }
+ 
     // Process the pulses to get a single number representing code
   for (int i = 0; i < NUMPULSES; i++) {
     irCode=irCode<<1;
@@ -125,24 +129,34 @@ byte getMode(void) {
   less = irCode & 0xFFFF;  // the second 16 bits
   
   if (less > 0 && less < 0x1350){
+    flashSpeed = 500;
     mode = 1;
   } else if (less > 0x1350 && less < 0x1520){
+    flashSpeed = 500;
     mode = 2;
   } else if (less > 0x1520 && less < 0x1620){
+    flashSpeed = 500;
     mode = 3; 
   } else if (less > 0x1620 && less <= 0x1920){ 
+    flashSpeed = 500;
     mode = 4;
   } 
    else if (less > 0x1920 && less <= 0x1A0D){
-    mode = 5;
+    //mode = 5; // faster
+    flashSpeed -= 50;
   }
   
   else if (less > 0x1A0D && less <= 0x200D ){
-    mode = 6;
-    
+    //mode = 6; // slower
+    flashSpeed += 50;
   }
 
-  
+  if(flashSpeed < 100){
+    flashSpeed = 50;
+  } else if (flashSpeed > 5000){
+    flashSpeed = 5000;
+  }
+  didIt = false;
   return mode;
 
 }
@@ -213,7 +227,8 @@ byte curMode = mode;
     
     
   // decide whether a given light will be on or off.  Each light will have a modifier.
-   
+
+  z = z * 10; 
   int half = z/2;
   randomSeed(analogRead(2));
   int min1 = random(half);
@@ -323,11 +338,6 @@ void pulse_down(int lop, byte ledPin){
    digitalWrite(ledPin, LOW);       //LED off
 } 
 
-void all_on(){
-    digitalWrite(LED1, HIGH);
-    digitalWrite(LED2, HIGH);
-    digitalWrite(LED3, HIGH);
-}
 
 void all_off(){
    digitalWrite(LED1, LOW); 
@@ -335,28 +345,28 @@ void all_off(){
    digitalWrite(LED3, LOW);
 }
 
-void pulseBlue(){
+void pulseBlue(unsigned int fs){
 //  delay((random(200))*100);
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(LED3, LOW);
-  pulse_up((random(50))*5, LED1); 
-  pulse_down((random(50))*5, LED1); 
-  delay((random(100))*50);
+  pulse_up(fs/10, LED1); 
+  pulse_down(fs/5, LED1); 
+  delay( random(10) *fs);
 //  delay((1000)*random(6));
 }
 
 
-void pulseGreen(){
+void pulseGreen(unsigned int fs){
  
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(LED3, LOW);
-  pulse_up((random(50))*5, LED3);  
-  pulse_up((random(50))*5, LED2);
-  pulse_down((random(50))*5, LED3);
-  pulse_down((random(50))*5, LED2);
-  delay((random(150))*5);
+  pulse_up(fs/5, LED3);  
+  pulse_up(fs/10, LED2);
+  pulse_down(fs/10, LED3);
+  pulse_down(fs/5, LED2);
+  delay( random(10) * fs);
  
 }
 
@@ -369,13 +379,5 @@ void blinkBlue(int numblinks){
   }
 }
 
-void blinkGreen(int numblinks){
- for(int i=0; i<numblinks; i++){
-       digitalWrite(LED2, HIGH);   
-       delay(300);
-       digitalWrite(LED2, LOW);
-       delay(300);
-  }
-}
 
 
