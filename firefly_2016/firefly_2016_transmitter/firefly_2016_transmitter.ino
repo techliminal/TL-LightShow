@@ -20,8 +20,11 @@
  
 #define TRIGGER_PIN  8
 #define ECHO_PIN     9
-#define MAX_DISTANCE 200
+#define MAX_DISTANCE 400
 //#define TIMER_ENABLED false
+
+char command = '1';
+int dist = 0;
 
 //SharpIR sharp(ir, 25, 93, model);
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
@@ -60,16 +63,11 @@ void setup()
 
 void loop() {
 
-  int uS = sonar.ping();
-  Serial.print("Ping: ");
-  Serial.print(uS / US_ROUNDTRIP_CM);
-  Serial.println("cm");
-
+  dist = check_distance();
   
-  const char command = Serial.read();
-//   const char command = input_measure();
-       Serial.print(command);  
-     Serial.println("");
+  // command = Serial.read();
+   command = '3';
+   Serial.print(command);  
 
   switch(command) {
     case '1':   // off.  Works
@@ -97,7 +95,27 @@ void loop() {
     send_command(PREV);
       break;
   }
+
+  Serial.println('.');
 }
+
+int check_distance(){
+
+  int d = 0;
+  int uS;
+  
+  for(int i=0; i<10; i++){
+   uS = sonar.ping();
+    d += uS;
+    delay(2);
+  }
+  d = d/10;
+  Serial.print("Ping: ");
+  Serial.print(d / US_ROUNDTRIP_CM);
+  Serial.print("cm  |   ");
+  return d;
+}
+
 
 /*
 char input_measure(){
