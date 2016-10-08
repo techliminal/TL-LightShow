@@ -29,7 +29,7 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
-byte mode = 4;
+byte mode = 5;
 unsigned int flashSpeed = 500;
 bool didIt = false;
  
@@ -54,8 +54,11 @@ void setup(void) {
 }
  
 void loop(void) {
-  
-   checkInput(); 
+
+   for (int i = 0; i<3; i++){
+    checkInput(); 
+    delay(20);
+   }
     
     switch (mode){
     case 1:  
@@ -67,8 +70,8 @@ void loop(void) {
      didIt = true;
      break;
     case 3:
-     FireFly(flashSpeed);
      didIt = true;
+     FireFly(flashSpeed);
      break;
     case 4:
       pulseBlue(flashSpeed);
@@ -76,7 +79,7 @@ void loop(void) {
       break;
     default:
      blinkBlue(mode);
-     delay(1000);
+     delay(500);
   }
  
 
@@ -89,12 +92,12 @@ byte checkInput(){
 
 for(int i=0; i< 4; i++){ //flash LEDs in listen mode
 
-/*      digitalWrite(LED2, HIGH);
+     digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
-      delay(100);
+      delay(50);
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
-      delay(100);*/
+      delay(50);
   }
 
    uint16_t numpulse = 0;
@@ -281,7 +284,7 @@ byte curMode = mode;
       digitalWrite(LED1, led1); 
       digitalWrite(LED2, led2);
       digitalWrite(LED3, led3);                  //All LEDs off or on
-      delay(1);
+      delay(20);
      }
          
 }
@@ -370,12 +373,17 @@ void pulseGreen(unsigned int fs){
  
 }
 
+// blink a number of times 
 void blinkBlue(int numblinks){
-   for(int i=0; i<numblinks; i++){
+   
+   for (int j=0; j < numblinks; j++){
+   for(int i=0; i<numblinks*3; i++){
        digitalWrite(LED1, HIGH);   
-       delay(300);
+       delay(10);
        digitalWrite(LED1, LOW);
-       delay(300);
+       delay(10);
+   }
+   delay(300);
   }
 }
 
