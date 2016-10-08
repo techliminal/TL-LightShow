@@ -29,9 +29,9 @@ at http://gammon.com.au/Arduino/SendOnlySoftwareSerial.zip
 uint16_t pulses[30][2]; // pair is high and low pulse
 uint16_t currentpulse = 0; // index for pulses we're storing
 uint32_t irCode = 0;
-byte mode = 5;
-unsigned int flashSpeed = 500;
-bool didIt = false;
+byte mode = 2;
+unsigned int flashSpeed = 500; // control the speed of different things.
+bool didIt = false;       // to let us finish out a mode. Not really working
  
 void setup(void) {
   pinMode(IRpin, INPUT);   // Listen to IR receiver on Trinket/Gemma pin D2
@@ -40,26 +40,25 @@ void setup(void) {
   pinMode(LED3, OUTPUT);                      //Create (D0) LED3 as an output 
   randomSeed(analogRead(0));                           //Not so random seed
   
-  for(int i=0; i< 2; i++){
+  for(int i=0; i< 3; i++){
       digitalWrite(LED1, HIGH);
       digitalWrite(LED2, HIGH);
       digitalWrite(LED3, HIGH);
-      delay(500);
+      delay(50);
       digitalWrite(LED1, LOW);
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
-      delay(500);
+      delay(50);
   }
   
 }
  
 void loop(void) {
 
-   for (int i = 0; i<3; i++){
+  
     checkInput(); 
     delay(20);
-   }
-    
+   
     switch (mode){
     case 1:  
      all_off();
@@ -71,7 +70,7 @@ void loop(void) {
      break;
     case 3:
      didIt = true;
-     FireFly(flashSpeed);
+     FireFly(100);
      break;
     case 4:
       pulseBlue(flashSpeed);
@@ -89,32 +88,35 @@ void loop(void) {
 
 byte checkInput(){
 
-
-for(int i=0; i< 4; i++){ //flash LEDs in listen mode
-
+  /*//flash LEDs in listen mode
+  for(int i=0; i< 4; i++){ 
      digitalWrite(LED2, HIGH);
-      digitalWrite(LED3, HIGH);
-      delay(50);
+     digitalWrite(LED3, HIGH);
+     delay(50);
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
       delay(50);
-  }
+    }
+ 
+  */
 
    uint16_t numpulse = 0;
    numpulse = listenForIR(); // Wait for an IR Code
-   if (numpulse > 0) mode = getMode(); 
+  if (numpulse > 0){
+    mode = getMode();
+  } 
 
-
+  return mode;
    
 }
 
 
 byte getMode(void) {
 
-  if (didIt == false){
+ /* if ((didIt == false) && (mode > 0) && (mode < 5) ) {
     return mode;
   }
- 
+ */
     // Process the pulses to get a single number representing code
   for (int i = 0; i < NUMPULSES; i++) {
     irCode=irCode<<1;
@@ -130,35 +132,18 @@ byte getMode(void) {
   
   half=irCode>>16;  // Get first 16 bits of code
   less = irCode & 0xFFFF;  // the second 16 bits
-  
+
+  // 2015 code for reading inputs. 
   if (less > 0 && less < 0x1350){
-    flashSpeed = 500;
     mode = 1;
   } else if (less > 0x1350 && less < 0x1520){
-    flashSpeed = 500;
     mode = 2;
   } else if (less > 0x1520 && less < 0x1620){
-    flashSpeed = 500;
     mode = 3; 
-  } else if (less > 0x1620 && less <= 0x1920){ 
-    flashSpeed = 500;
+  } else if (less > 0x1620 && less <= 0x1A0D){ // middle button
     mode = 4;
-  } 
-   else if (less > 0x1920 && less <= 0x1A0D){
-    //mode = 5; // faster
-    flashSpeed -= 50;
-  }
-  
-  else if (less > 0x1A0D && less <= 0x200D ){
-    //mode = 6; // slower
-    flashSpeed += 50;
   }
 
-  if(flashSpeed < 100){
-    flashSpeed = 50;
-  } else if (flashSpeed > 5000){
-    flashSpeed = 5000;
-  }
   didIt = false;
   return mode;
 
@@ -195,12 +180,10 @@ uint16_t listenForIR() {  // IR receive code
       if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
         return currentpulse; 
       } else if ((highpulse >= 60000) && (currentpulse == 0)){
-         //blink2_1();
          highpulse = 0;
          break;
       }
    }
-   
    
    pulses[currentpulse][0] = highpulse;
    currentpulse++;
@@ -246,33 +229,30 @@ byte curMode = mode;
        if (i == min1){
            led1 = HIGH;
            pulse_up(lop, LED1);
-           delay(1000);
            if (checkInput() != curMode) return;
            
        }
        if (i == min2){
            led2=HIGH;
            pulse_up(lop, LED2);
-           delay(1000);
            if (checkInput() != curMode) return;
        }
        if(i == min3){
          led3=HIGH;
          pulse_up(lop, LED3);
-         delay(1000);
          if (checkInput() != curMode) return;      
         }
         
        if (i == max1){
-           led1 = LOW;
+           led1 = LOW;           
            pulse_down(lop, LED1);
            delay(1000);
            if (checkInput() != curMode) return;
        }
        if (i == max2){
            led2=LOW;
-           delay(1000);
            pulse_down(lop, LED2);
+           delay(1000);
            if (checkInput() != curMode) return;
        }
        if(i == max3){
@@ -353,8 +333,8 @@ void pulseBlue(unsigned int fs){
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(LED3, LOW);
-  pulse_up(fs/10, LED1); 
-  pulse_down(fs/5, LED1); 
+  pulse_up(fs/5, LED1); 
+  pulse_down(fs/2, LED1); 
   delay( random(10) *fs);
 //  delay((1000)*random(6));
 }
@@ -365,9 +345,9 @@ void pulseGreen(unsigned int fs){
   digitalWrite(LED1, LOW);
   digitalWrite(LED2, LOW);
   digitalWrite(LED3, LOW);
-  pulse_up(fs/5, LED3);  
-  pulse_up(fs/10, LED2);
-  pulse_down(fs/10, LED3);
+  pulse_up(fs/4, LED3);  
+  pulse_up(fs/8, LED2);
+  pulse_down(fs/8, LED3);
   pulse_down(fs/5, LED2);
   delay( random(10) * fs);
  
