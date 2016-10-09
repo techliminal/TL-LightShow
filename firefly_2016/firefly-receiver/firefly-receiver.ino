@@ -49,7 +49,7 @@ void setup(void) {
       digitalWrite(LED2, LOW);
       digitalWrite(LED3, LOW);
       delay(50);
-  }
+  } 
   
 }
  
